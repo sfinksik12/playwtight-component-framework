@@ -1,0 +1,31 @@
+{
+  "name": "playwright-component-framework",
+  "version": "1.0.1",
+  "description": "Базовый класс для тестирования UI API",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "./api/",
+    "./ui/",
+    "./faker/",
+    "./lib/",
+    "index.js"
+  ],
+  "scripts": {},
+  "keywords": [],
+  "author": "Pavel Schelokov",
+  "license": "ISC",
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "@playwright/test": "^1.52",
+    "@types/node": "^20.14.0",
+    "allure-commandline": "^2.29.0",
+    "allure-playwright": "^2.15.1"
+  },
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.4.5",
+    "parse": "^5.1.0"
+  }
+}
