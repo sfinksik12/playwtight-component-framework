@@ -1,6 +1,6 @@
 # UI-слой автоматизации тестов
 
-Этот директория содержит слой абстракции над Playwright для использования в UI-тестах. Реализована по паттернам Page Object Model (POM) и Component Object Model (COM).
+Это слой абстракции над Playwright для использования в UI-тестах. Реализована по паттернам Page Object Model (POM) и Component Object Model (COM).
 
 ## Структура
 
@@ -16,29 +16,25 @@
 
 ## Основные компоненты и их методы
 
-### BaseComponent
-
-Базовый класс для всех компонентов с основными методами:
+### Создание компонента
 
 ```javascript
 // Создание компонента
-const button = new Button(page, '.submit-button', 'Кнопка отправки формы');
+const button = new Button(page, ".submit-button", "Кнопка отправки формы");
 ```
-
-## Примеры использования
 
 ### Создание фрагмента
 
 ```javascript
 // Пример создания класса компонента поиска
-import { Input } from '../components/input.js';
-import { Button } from '../components/button.js';
+import { Input } from "../components/input.js";
+import { Button } from "../components/button.js";
 
 export class SearchBarFragment {
   constructor(page) {
     this.page = page;
-    this.searchInput = new Input(page, '.search-input', 'Поле поиска');
-    this.searchButton = new Button(page, '.search-button', 'Кнопка поиска');
+    this.searchInput = new Input(page, ".search-input", "Поле поиска");
+    this.searchButton = new Button(page, ".search-button", "Кнопка поиска");
   }
 
   async search(text) {
@@ -52,8 +48,8 @@ export class SearchBarFragment {
 
 ```javascript
 // Пример создания страницы поиска
-import { BasePage } from './basePage.js';
-import { SearchBar } from '../fragments/searchBarFragment.js';
+import { BasePage } from "./basePage.js";
+import { SearchBar } from "../fragments/searchBarFragment.js";
 
 export class SearchPage extends BasePage {
   constructor(page) {
@@ -67,21 +63,74 @@ export class SearchPage extends BasePage {
 
 ```javascript
 // Пример использования страницы в тесте
-import { test, expect } from '@playwright/test';
-import { SearchPage } from '../ui/pages/searchPage.js';
+import { test, expect } from "@playwright/test";
+import { SearchPage } from "../ui/pages/searchPage.js";
 
-test('Поиск должен возвращать результаты', async ({ page }) => {
+test("Поиск должен возвращать результаты", async ({ page }) => {
   const searchPage = new SearchPage(page);
   await searchPage.openPage();
-  await searchPage.searchBar.searchFor('Playwright');
+  await searchPage.searchBar.searchFor("Playwright");
 });
 ```
 
-## Интеграция с Allure
+# API-слой автоматизации тестов
 
-Все действия автоматически записываются в отчет Allure, включая:
+Это слой абстракции над Playwright для использования в API-тестах.
 
-- Навигацию между страницами
-- Взаимодействие с компонентами
-- Проверки
-- Запросы к API
+## Пример класса взаимодействия с микросервисом
+
+```javascript
+import { httpRequest, Helpers, API } from "base-api-test";
+import dotenv from "dotenv";
+dotenv.config();
+
+export class User extends API {
+  constructor() {
+    super();
+    this.serviceData = {};
+    this.helpers = new Helpers();
+  }
+
+  async post_api_create(data) {
+    let comment = "Создать пользователя";
+    let options = {
+      url: this.serviceData.baseUrl,
+      path: "/api/create",
+      data: data,
+      method: "POST",
+    };
+    return await httpRequest(comment, options, this.serviceData);
+  }
+
+  async delete_api_delete(data) {
+    let comment = "Удалить пользователя";
+    let options = {
+      url: this.serviceData.baseUrl,
+      path: "/api/delete",
+      data: data,
+      method: "DELETE",
+    };
+    return await httpRequest(comment, options, this.serviceData);
+  }
+}
+```
+
+## Пример теста методов микросервиса
+
+```javascript
+import { allure } from "allure-playwright";
+import { test, expect } from "../src/fixtures/mergeFixtures";
+
+test("Создание пользователя - успешно", async ({ auth }) => {
+  allure.epic("/api/create");
+  allure.owner("@name");
+
+  let request = {
+    name: "user",
+  };
+
+  let createdUser = await auth.post_api_create(request);
+  expect(createdUser.promise.status()).toBe(200);
+  expect(createdUser.json.name).toBe(request.name);
+});
+```
